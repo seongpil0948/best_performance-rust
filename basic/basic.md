@@ -25,3 +25,6 @@
 * loop
     - return in loop  = break variable1 * 2;
     - for i in a.iter() {}  // a is arr
+
+* Generic Type 
+    - have Monomorphzation at compile time so, performance is Same as other type

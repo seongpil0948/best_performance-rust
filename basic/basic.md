@@ -28,3 +28,8 @@
 
 * Generic Type 
     - have Monomorphzation at compile time so, performance is Same as other type
+
+* Standard 
+    - eprintln! -> Standard Error Output -> 표준 에러 스트림에 출력
+    - printlne! -> Standard Output -> 표준 출력
+    - cargo run cargo run good text.txt > output.txt  은 표준 출력

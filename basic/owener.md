@@ -6,6 +6,10 @@ Create a String Instance using a string literal
     s.push_str(" world");
 }
 ~~~
+String is the dynamic heap string type, <br>
+str is normally called "string slice"
+
+https://stackoverflow.com/questions/24158114/what-are-the-differences-between-rusts-string-and-str
 1. 문자열 리터럴
     - 컴파일 시점에 그 길이를 알 수 없다.
     - 사용할 메모리를 바이너리 형태로 미리 변환 불가.

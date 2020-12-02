@@ -37,6 +37,49 @@ impl Config {
 */ 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
-    println!("File Content: \n {}", contents);
+
+    for line in search(&config.query, &contents) {
+        println!("Matching \n Result: {}", line)
+    }
+    
     Ok(())
+}
+
+
+// configure as $ cargo test
+#[cfg(test)]
+mod test {
+    use super::*; // import from ../(super)
+
+    #[test]
+    fn one_result() {
+        let query = "good";
+        let contents = "\
+        Rust is Good.. ><
+        hahaha    
+        ";
+
+        assert_eq!(
+            vec!["Rust is Good.. ><"],
+            search(query, contents)
+        );
+    }
+}
+
+// 'a : LT variable
+// contents is must connect return LT
+// contents 는 빌려온 데이터다. 그리고 수명이 이후로도 지속되어야 한다.
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+    // to_lowercase is create new String
+    // shadowing and query become String(heap)(Clone) not str(string slice)
+    // but contains accept only str
+    let query = query.to_lowercase();
+    // iter by each line
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
+            results.push(line);
+        }
+    }
+    results
 }

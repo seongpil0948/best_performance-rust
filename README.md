@@ -17,3 +17,7 @@
     1. write failure Test and Check Error fit your intention
     2. write code for success Test
     3. refactor code and check continuous success Test
+
+
+* Commands
+    - rustup update && cargo update

@@ -1,3 +1,9 @@
+//! # My Crate
+//! * 일부 연산을 더 쉽게 실행하기 위한 유틸리티 모음
+/// 주어진 숫자에 1을 더한다.
+//ㄴ
+
+
 use std::fs;
 use std::error::Error;
 
@@ -6,24 +12,29 @@ pub struct Config {
     filename: String
 }
 
-impl Config {
-    // ` = LT variable
-    //  static = LT is until the end of program
-    pub fn new(args: &[String]) -> Result<Config, &'static str>  {
-        let length: usize = args.len();
-        if length == 1 {
-            return Err(" Args is not at all ");
-        }
-        else if length < 3 {
-            return Err(" Insufficient(불만족) Num Of Arg");
-        }
-        // args[0] is bin file name
-        // cloning is more Inefficient than save Reference data
-        // because, arg's OW is not parse_config
-        // but, LT manage is more easy
-        let query = args[1].clone();
-        let filename = args[2].clone();
 
+impl Config {
+    /// cloning is more Inefficient than  save Reference data
+    /// because, arg's OW not parse config
+    /// but, LT manage is more easy
+    /// ```
+    /// let query = args[1].clone();
+    /// let filename = args[2].clone();
+    /// ```    
+    /// ` = LT variable
+    ///   static = LT is until the end of program
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str>  {
+        args.next(); // args[0] is bin file name
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err(" Args is not at all ")
+        };
+
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err(" Insufficient(불만족) Num Of Arg")
+        };
         Ok(Config{ query, filename })
     }
 }
@@ -70,16 +81,12 @@ mod test {
 // contents is must connect return LT
 // contents 는 빌려온 데이터다. 그리고 수명이 이후로도 지속되어야 한다.
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
     // to_lowercase is create new String
     // shadowing and query become String(heap)(Clone) not str(string slice)
     // but contains accept only str
-    let query = query.to_lowercase();
+    let query = query;
     // iter by each line
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    }
-    results
+    contents.lines() // return iterator
+        .filter(|line| line.contains(query))
+        .collect() // Re assembly (재조립 Array)
 }

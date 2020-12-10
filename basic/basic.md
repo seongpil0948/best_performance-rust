@@ -33,3 +33,6 @@
     - eprintln! -> Standard Error Output -> 표준 에러 스트림에 출력
     - printlne! -> Standard Output -> 표준 출력
     - cargo run cargo run good text.txt > output.txt  은 표준 출력
+
+* 특별히 Return Type을 명시하지 않는다면
+    - Result<T, Error> 라고 봐도 무방하다

@@ -1,7 +1,7 @@
-use std::io::prelude::{ Read, Write };
-use std::net::{TcpListener, TcpStream};
-use std::fs;
 use custom_web_server::ThreadPool;
+use std::fs;
+use std::io::prelude::{Read, Write};
+use std::net::{TcpListener, TcpStream};
 
 // define mut stream for TcpStreams
 fn handle_connection(mut stream: TcpStream) {
@@ -27,7 +27,7 @@ fn handle_connection(mut stream: TcpStream) {
 }
 
 fn main() {
-    // wait to TCP Connection 
+    // wait to TCP Connection
     // return Result<_, E> if use other port
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     // Limit num of threads
@@ -37,7 +37,7 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         pool.execute(|| {
-            handle_connection(stream);    
+            handle_connection(stream);
         });
     }
 }

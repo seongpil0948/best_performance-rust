@@ -1,4 +1,3 @@
-
 use std::env;
 use std::process;
 
@@ -8,7 +7,7 @@ fn main() {
     // if false -> exist variable
     let exist_variable: bool = env::var("SP_ENV_VARIABLE").is_err();
     println!("exist_variable ? : \n {} ", exist_variable);
-    
+
     // Err Catch From Pipe(|err|) -> Closure
     // env::args return Iterator Trait
     let config = Config::new(env::args()).unwrap_or_else(|err| {
@@ -23,6 +22,3 @@ fn main() {
         process::exit(1);
     }
 }
-
-
-

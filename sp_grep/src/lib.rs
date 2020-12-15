@@ -1,17 +1,15 @@
 //! # My Crate
 //! * 일부 연산을 더 쉽게 실행하기 위한 유틸리티 모음
+use std::error::Error;
 /// 주어진 숫자에 1을 더한다.
 //ㄴ
-
-
 use std::fs;
-use std::error::Error;
+
 
 pub struct Config {
     query: String,
-    filename: String
+    filename: String,
 }
-
 
 impl Config {
     /// cloning is more Inefficient than  save Reference data
@@ -23,39 +21,37 @@ impl Config {
     /// ```    
     /// ` = LT variable
     ///   static = LT is until the end of program
-    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str>  {
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
         args.next(); // args[0] is bin file name
 
         let query = match args.next() {
             Some(arg) => arg,
-            None => return Err(" Args is not at all ")
+            None => return Err(" Args is not at all "),
         };
 
         let filename = match args.next() {
             Some(arg) => arg,
-            None => return Err(" Insufficient(불만족) Num Of Arg")
+            None => return Err(" Insufficient(불만족) Num Of Arg"),
         };
-        Ok(Config{ query, filename })
+        Ok(Config { query, filename })
     }
 }
 
-
-/* 
+/*
     1. Box(dyn Error) from Error Trait>
         Return Various Error at Unexpected
     2. ? operator return Error instead panic from expect(func)
 
-*/ 
+*/
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
 
     for line in search(&config.query, &contents) {
         println!("Matching \n Result: {}", line)
     }
-    
+
     Ok(())
 }
-
 
 // configure as $ cargo test
 #[cfg(test)]
@@ -70,10 +66,7 @@ mod test {
         hahaha    
         ";
 
-        assert_eq!(
-            vec!["Rust is Good.. ><"],
-            search(query, contents)
-        );
+        assert_eq!(vec!["Rust is Good.. ><"], search(query, contents));
     }
 }
 
@@ -86,7 +79,8 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     // but contains accept only str
     let query = query;
     // iter by each line
-    contents.lines() // return iterator
+    contents
+        .lines() // return iterator
         .filter(|line| line.contains(query))
         .collect() // Re assembly (재조립 Array)
 }

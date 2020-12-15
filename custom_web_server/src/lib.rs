@@ -1,9 +1,9 @@
-use std::thread;
 use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 
 trait FnBox {
     // 매개변수에 대한 소유권을 갖고 Box<T>를 외부로 옮길 수 있도록
-    fn call_box (self: Box<self>);
+    fn call_box(self: Box<&self>);
 }
 
 /// FnOnce 트레이트를 구현하는 모든 F 타입 매개변수에 대해 FnBox 트레이트를 구현
@@ -15,15 +15,13 @@ impl<F: FnOnce()> FnBox for F {
 }
 
 // execute 메소드가 전달받을 클로저 타입을 저장할 트레이트 객체에 대한 별칭
-// FnBox 트레이트를 구현 하는 타입
+// 런타임에 동적으로 FnBox 트레이트를 구현 하는 타입
 type Job = Box<dyn FnBox + Send + 'static>;
-
-struct Job;
 
 struct Worker {
     id: usize,
     // () for Return None
-    thread: thread::JoinHandle<()>
+    thread: thread::JoinHandle<()>,
 }
 
 impl Worker {
@@ -31,20 +29,17 @@ impl Worker {
 
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         // create new thread
-        let thread = thread::spawn(move|| {
+        let thread = thread::spawn(move || {
             // 채널의 수신샂로부터 새로운 작업이 있는지 확인
             // 리소스 점령후(락 희득)
             // 에러방지 Mutex 상태에 문제가 있다면 에러 발생 가능
-            // 채널에 속한 Sender로 부터 recv 메소드를 호출, Job Instance 수신            
+            // 채널에 속한 Sender로 부터 recv 메소드를 호출, Job Instance 수신
             while let Ok(job) = job = receiver.lock().unwrap().recv() {
                 print!("Start: Worker {}", id);
                 job.call_box();
             }
         });
-        Worker {
-            id,
-            thread
-        }
+        Worker { id, thread }
     }
 }
 
@@ -74,22 +69,19 @@ impl ThreadPool {
             // 스레드들을 생성하고 벡터 내에 보관합니다
             workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
-        ThreadPool {
-            workers,
-            sender
-        }
+        ThreadPool { workers, sender }
     }
     /// * closure arguments [Fn, FnMut, FnOnce(단한번만 실행 가능한 함수)]
-    ///     - f: thread use func after created 
-    pub fn execute<F> (&self, f: F) 
-        where
-            // FnOnce는 리턴과 매개변수가 없기 때문에 괄호가 필요
-            F: FnOnce() -> ThreadPool,
-            F: Send + 'static
-        {
-            // 클로저를 이용해 Job 생성
-            let job = Box::new(f);
-            // prevent Error
-            self.sender.send(job).unwrap();
-        }
+    ///     - f: thread use func after created
+    pub fn execute<F>(&self, f: F)
+    where
+        // FnOnce는 리턴과 매개변수가 없기 때문에 괄호가 필요
+        F: FnOnce() -> ThreadPool,
+        F: Send + 'static,
+    {
+        // 클로저를 이용해 Job 생성
+        let job = Box::new(f);
+        // prevent Error
+        self.sender.send(job).unwrap();
+    }
 }

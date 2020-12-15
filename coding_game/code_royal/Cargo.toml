@@ -1,5 +1,5 @@
 [package]
-name = "from_cargo"
+name = "code_royal"
 version = "0.1.0"
 authors = ["seongpil0948 <seongpil0948@gmail.com>"]
 edition = "2018"

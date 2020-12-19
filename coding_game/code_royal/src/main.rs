@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io;
 use std::rc::Rc;
+use rand::Rng;
 
 macro_rules! parse_input {
     ($x:expr, $t:ident) => {
@@ -28,6 +29,16 @@ impl Locate {
 enum CreepType {
     KNIGHT,
     ARCHER,
+}
+impl CreepType {
+    fn get_rand_type() -> CreepType {
+        let mut rng = rand::thread_rng();
+        return match rng.gen_range(0, 1) {
+            0 => CreepType::KNIGHT,
+            1 => CreepType::ARCHER,
+            _ => CreepType::KNIGHT,
+        }
+    }
 }
 #[derive(Debug, Clone)]
 enum OwnerType {
@@ -90,6 +101,7 @@ impl Site {
     }
 }
 // First Print
+#[derive(Debug)]
 enum First {
     Wait,
     Moving,
@@ -105,8 +117,7 @@ impl First {
     fn printing(
         &self,
         site: Option<Site>,
-        site_id: Option<C>,
-        creep_type: Option<CreepType>,
+        creep_type: CreepType,
     ) -> () {
         match self {
             First::Wait => println!("WAIT"),
@@ -114,11 +125,8 @@ impl First {
                 Some(site) => println!("MOVE {} {}", site.locate.x, site.locate.y),
                 None => panic!("required argument Locate in Output::First::Moving "),
             },
-            First::Build => match site_id {
-                Some(site_id) => match creep_type {
-                    Some(creep_type) => println!("BUILD {:?} BARRACKS-{:?}", site_id, creep_type),
-                    None => panic!("required argument creep_type in Output::First::Build "),
-                },
+            First::Build => match site {
+                Some(site) => println!("BUILD {:?} BARRACKS-{:?}", site.id, creep_type),
                 None => panic!("required argument site_id in Output::First::Build "),
             },
         }
@@ -151,15 +159,19 @@ fn find_shortest_site(queen: Queen, sites: Rc<RefCell<HashMap<C, Site>>>) -> C {
     let mut shortest_site_id: C = -1;
     let q_locate = queen.locate;
     for site in sites.values() {
-        let new_dist = q_locate.get_distance(Rc::clone(&site.locate));
-        if new_dist < shortest_path {
-            shortest_path = new_dist;
-            shortest_site_id = site.id;
+        match &site.owner {
+            OwnerType::Friendly | OwnerType::Enemy => continue,
+            OwnerType::None => {
+                let new_dist = q_locate.get_distance(Rc::clone(&site.locate));
+                if new_dist < shortest_path {
+                    shortest_path = new_dist;
+                    shortest_site_id = site.id;
+                }
+            }
         }
     }
     shortest_site_id
 }
-// &mut 
 fn main() {
     std::env::set_var("RUST_BACKTRACE", "full");
     const _MAX_RIGHT: C = 1920;
@@ -168,7 +180,7 @@ fn main() {
     let mut first_output = First::Wait;
     let second_output = Second::Train;
 
-    let queen = Queen {
+    let mut queen = Queen {
         hp: 100,
         gold: 100,
         touched_site: None,
@@ -192,10 +204,10 @@ fn main() {
         let mut input_line = String::new(); io::stdin().read_line(&mut input_line).unwrap(); let inputs = input_line.split(" ").collect::<Vec<_>>();
         let gold = parse_input!(inputs[0], i32);
         let touched_site = parse_input!(inputs[1], i32); // -1 if none
-        let mut queen = queen.clone();
         queen.gold = parse_input!(inputs[0], i32);
         if touched_site > 0 {
             queen.touched_site = Some(touched_site);
+            eprintln!("Some(touched_site):{:?} \n queen: {:?}", Some(touched_site), queen);
         } else {
             queen.touched_site = None
         }
@@ -216,15 +228,15 @@ fn main() {
         let site2 = Rc::clone(&sites);
         let shortest_site_id = find_shortest_site(queen, site2);
         let sites = sites.borrow();
-        let shortest_site = match sites.get(&shortest_site_id) {
-            Some(site) => {
-                first_output = First::Moving;
-                site
-            }
-            None => panic!("not Found Shortest Site's Locate"),
-        };
-
-        first_output.printing(Some(shortest_site.clone()), None, None);
-        second_output.printing(None)
+        let shortest_site = sites.get(&shortest_site_id).unwrap();
+        
+        let q = queen.clone();
+        first_output = match q.touched_site {
+            Some(_) => First::Build,
+            None => First::Moving
+        };                
+        first_output.printing(Some(shortest_site.clone()), CreepType::get_rand_type());
+        second_output.printing(None);
+        eprintln!("touched_site: {:?}\n Queen :{:?} \n first_output: {:#?}", touched_site, queen, first_output);
     }
 }

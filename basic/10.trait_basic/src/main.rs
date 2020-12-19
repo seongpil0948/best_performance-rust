@@ -1,11 +1,22 @@
 
 mod lib;
 
+/// # Trait
+/// ## define shareable behavior
+
+/// * there are some difference, but similar to Interface in other Language
+/// * Abstractism
+/// * python 의 Stub?
+
 // 1
 pub trait Summary {
     // Must implement
-    fn summarize(&self) -> String;
+    fn summarize(&self) -> String {
+        println!("Default Sumarry Trait Method")
+    }
 }
+trait Summary2 {}
+trait Summary3 {}
 
 // 2
 pub struct NewArticle {
@@ -42,25 +53,35 @@ impl Summary for Tweet {
 
 //  pub fn notify<T: Summary>(item: T, item2: T) 
 //  arg is implement trait Summary
+//  Garantee items has summary method
 pub fn notify(item: impl Summary) -> String {
     println!("속보!: {}", item.summarize());
 }
 
+// diff type and same func
+pub fn notify(item1: impl Summary, item2: impl Tweet) -> String {
+    println!("속보!: {}, {}", item1.summarize(), item2.summarize());
+}
+
+/// 아이템은 3 개의 트레이트에들을 모두 구현 해야한다
+pub fn notify(item: impl Summary + Summary2 + Display) -> String;
+pub fn notify<T:Summary + Summary2 + Display> (item: T ) -> String;
 
 
-// use Where
-// fn some_func<T: Display + Clone, U: Clone + Debug>(t: T, u: U) -> i32 
-fn some_func<T, U>(t: T, u: U) -> impl trait {
+/// 제네릭을 이용해 들어온 인자의 트레이트 구현 상태에 따른 다른 시그니처 적용
+fn some_func<T, U>(t: T, u: U) -> Tweet {
+    // fn some_func<T: Display + Clone, U: Clone + Debug>(t: T, u: U) -> i32 
     where 
         T: Display + Clone,
         U: Clone + Debug
-    // return 
-    Tweet {
-        username: String::from("RUST_EBOOK"),
-        content: String::from("Start to Read"),
-        reply: false,
-        retweet: false,
-    };
+    {
+        Tweet {
+            username: String::from("RUST_EBOOK"),
+            content: String::from("Start to Read"),
+            reply: false,
+            retweet: false,
+        }
+    }
 }
 
 

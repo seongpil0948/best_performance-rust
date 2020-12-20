@@ -3,7 +3,7 @@ use std::io::{ ErrorKind, Read };
 
 fn read_from_file() -> Result<String, io::Error> {
     let mut s = String::new();
-    // ? is immediatly return if Enum type: Error through From Func
+    // what is ? is immediatly return if Enum type: Error through From Func
     // From convert from Error type to Function Error Type
     // must using in return Result func
     File::open("example.txt")?.read_to_string(&mut s)?;

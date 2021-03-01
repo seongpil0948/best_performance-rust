@@ -1,2 +1,2 @@
-mod stack;
-pub use self::stack::Stack;
+pub mod graph;
+pub mod stack;

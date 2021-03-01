@@ -13,6 +13,7 @@
 ///
 /// * [Stack (abstract data type)](https://en.wikipedia.org/wiki/Stack_\(abstract_data_type\))
 /// * [Big-O Algorithm Complexity Cheat Sheet](http://bigocheatsheet.com/)
+#[derive(Debug, Clone)]
 pub struct Stack<T> {
     maxsize: usize,
     items: Vec<T>,

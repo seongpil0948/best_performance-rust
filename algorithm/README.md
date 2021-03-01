@@ -14,3 +14,7 @@
 ## Intergrate Test
     * only able to test pub mod or interface
     * pro
+
+## BigO
+- bigO.png 를 만족한다
+- https://m.blog.naver.com/kks227/220769859177
